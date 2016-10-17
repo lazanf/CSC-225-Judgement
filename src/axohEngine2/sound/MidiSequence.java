@@ -47,11 +47,11 @@ public class MidiSequence {
     //Constructor that accepts a filename
     public MidiSequence(String midiFile) {
         try {
-          /*  //load the midi file in to the sequencer
-            filename = midifile;
-            song = MidiSystem.getSequence(getURL(filename));
-            sequencer.setSequence(song);
-            sequencer.open();*/
+            //load the midi file in to the sequencer
+            filename = midiFile;
+            //song = MidiSystem.getSequence(getURL(filename));
+            //sequencer.setSequence(song);
+            //sequencer.open();
         	sequencer = MidiSystem.getSequencer();
         	sequencer.open();
         	InputStream is = new BufferedInputStream(new FileInputStream(new File(midiFile)));

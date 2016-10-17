@@ -75,7 +75,7 @@ public abstract class Game extends JPanel implements Runnable {
         //Set up the JFrame and initialize variables.
         setUpFrame(frameRate, width, height);
         initVariables();
-        tileWithinRange = new Tile[60];
+        tileWithinRange = new Tile[50];
         //Start the game
         gameStartUp();
     }
@@ -186,8 +186,7 @@ public abstract class Game extends JPanel implements Runnable {
      * Currently may not work, using built in java methods may work better.
      * Unused
      ******************************************************/
-    //TODO: all getMousePos() does is return mousePos.
-    // Kinda redundant, but might be annoying to change
+   
     public Point2D mousePosition() {
         return getMousePos();
     }
@@ -365,8 +364,17 @@ public abstract class Game extends JPanel implements Runnable {
         for (AnimatedSprite spr : _sprites) {
             if (spr.alive()) {
                 spriteUpdate();
-                if (state == STATE.GAME)
-                    if (spr instanceof Mob) ((Mob) spr).updateMob(); //When the game is running, update Mobs
+                if (state == STATE.GAME){
+                	System.out.println("Sprite is Currently alive");
+                    if (spr instanceof Mob) {
+                    	System.out.println("Moving current Mob");
+                    	((Mob) spr).updateMob(); //When the game is running, update Mobs
+                    	//This doesn't work for whatever reason.
+                    	//The Method which updates mobs is in Judgement under refreshGameScreen.
+                    	// crtl + f "updateMob"
+                    	//Has something to do with state != STATE.Game
+                    }
+                }
             }
             spriteDying();
         }
@@ -580,7 +588,8 @@ public abstract class Game extends JPanel implements Runnable {
      *             This allows for a much faster, smoother game experience as well as larger maps.
      *********************************************************************/
     void addTile(Tile tile) {
-        if (tile.hasProperty()) tiles().add(tile);
+        if (tile.hasProperty()) 
+        	tiles().add(tile);
 
     }
 
@@ -590,7 +599,8 @@ public abstract class Game extends JPanel implements Runnable {
      * @param x    - An Int position relating to the X position the text will be rendered on screen
      **********************************************************************/
     void drawString(Graphics2D g2d, String text, int x) {
-        for (String line : text.split("\n")) g2d.drawString(line, x, x += g2d.getFontMetrics().getHeight());
+        for (String line : text.split("\n")) 
+        	g2d.drawString(line, x, x += g2d.getFontMetrics().getHeight());
 
     }
 

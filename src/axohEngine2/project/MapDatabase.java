@@ -324,13 +324,13 @@ public class MapDatabase {
         
 		npc = new Mob(frame, g2d, mainCharacter, 40, TYPE.RANDOMPATH, "npc", false);
 		npc.setBounds(16, 30, 60);
-		npc.setMoveAnim(32, 48, 40, 56, 3, 8);
+		//npc.setMoveAnim(32, 48, 40, 56, 3, 8);
 		npc.setHealth(100);
 		
 		monster = new Mob(frame, g2d, mainCharacter, 40, TYPE.RANDOMPATH, "monster", false);
 		monster.setBounds(16, 30, 60);
 		monster.setMoveAnim(32, 48, 40, 56, 3, 8);
-		monster.setHealth(50);
+		monster.setHealth(51);
 		
 		monster1 = new Mob(frame, g2d, mainCharacter, 40, TYPE.RANDOMPATH, "monster1", false);
 		monster1.setBounds(16, 30, 60);

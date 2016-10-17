@@ -16,6 +16,7 @@ package axohEngine2.entities;
 
 
 import axohEngine2.project.TYPE;
+import axohEngine2.sound.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.Random;
+
 
 public class Mob extends AnimatedSprite implements MouseListener {
 
@@ -48,10 +50,19 @@ public class Mob extends AnimatedSprite implements MouseListener {
     private TYPE ai;
     private int xx;
     private int yy;
-    private int speed = 10;
+    private int speed = 3;
     private boolean attacking;
     private boolean takenOut = false;
     private Attack currentAttack;
+    
+    // Should be a short sound clip.
+    // Currently implemented as a Midi file.
+    // Should change to .wav / .mp3 and add a class to handle both of those
+    // File types in axohEngine2.Sound.
+   
+    //Not actualy an mp3 file
+    private String soundEffect = "res\\music\\Sound Effects\\CB.mp3"; 
+    private MidiSequence damageSound = new MidiSequence(soundEffect);
 
     //Four variable booleans depicting the last direction the mob was moving(This could be phased out of the system)
     private boolean wasRight = false;
@@ -116,7 +127,8 @@ public class Mob extends AnimatedSprite implements MouseListener {
 
     //Setters for current health, ai, name and speed
 	public void setHealth(int maxHealth) { 
-		this.maxHealth = maxHealth; health = maxHealth;
+		this.maxHealth = maxHealth;
+		health = maxHealth;
 	}
 
     public void setAi(TYPE ai) {
@@ -186,6 +198,11 @@ public class Mob extends AnimatedSprite implements MouseListener {
             setAlive(false);
         }
     }
+    
+    // Should detect whether or not a mob can move in a direction or is blocked.
+    public boolean collisionDetection(DIRECTION dir){
+    	return true;
+    }
 
     /***************************************************************
      * AI logic used for the randomly moving ai type
@@ -194,7 +211,7 @@ public class Mob extends AnimatedSprite implements MouseListener {
         int xa = 0;
         int ya = 0;
         int r = random.nextInt(7);
-
+        
         if (wait <= 0) {
             waitOn = false;
             randomDir = DIRECTION.NONE;
@@ -204,39 +221,43 @@ public class Mob extends AnimatedSprite implements MouseListener {
         if (r == 0 && !waitOn) { //right
             randomDir = DIRECTION.RIGHT;
             waitOn = true;
-            wait = random.nextInt(200);
+            wait = random.nextInt(100);
         }
         if (r == 1 && !waitOn) { //left
             randomDir = DIRECTION.LEFT;
             waitOn = true;
-            wait = random.nextInt(200);
+            wait = random.nextInt(100);
         }
         if (r == 2 && !waitOn) { //up
             randomDir = DIRECTION.UP;
             waitOn = true;
-            wait = random.nextInt(200);
+            wait = random.nextInt(100);
         }
         if (r == 3 && !waitOn) { //down
             randomDir = DIRECTION.DOWN;
             waitOn = true;
-            wait = random.nextInt(200);
+            wait = random.nextInt(100);
         }
         if (r >= 4 && !waitOn) { //Not moving
             waitOn = true;
-            wait = random.nextInt(200);
+            wait = random.nextInt(100);
             stopAnim();
         }
 
         if (randomDir == DIRECTION.RIGHT) xa = speed;
-        startAnim();
+        	//startAnim();
         if (randomDir == DIRECTION.LEFT) xa = -speed;
-        startAnim();
+        	//startAnim();
         if (randomDir == DIRECTION.UP) ya = speed;
-        startAnim();
+        	//startAnim();
         if (randomDir == DIRECTION.DOWN) ya = -speed;
-        startAnim();
-
-        move(xa, ya);
+        	//startAnim();
+        
+        // This determines whether or not to move the mob.
+        if(collisionDetection(randomDir)){
+        	move(xa, ya);	
+        }
+        
         if (waitOn) wait--;
     }
 
@@ -261,6 +282,8 @@ public class Mob extends AnimatedSprite implements MouseListener {
      * @param xa - Int movement in pixels on the x axis
      * @param ya - Int movement in pixels on the y axis
      ****************************************************************/
+    
+    
     public void move(int xa, int ya) {
         if (xa < 0) { //left
             xx += xa;
@@ -502,11 +525,23 @@ public class Mob extends AnimatedSprite implements MouseListener {
     /****************************************************
      * Lower this mobs health by a damage as well by a modifier from 0 to
      * a random int of a maximum value of the damage parameter % 5.
+     * 
+     * Also used to do a sound effect when hurt.
      *
      * @param damage - An int used to lower this mobs health
      *****************************************************/
 	public void takeDamage(double damage){ 
 		health -= damage; 
+		 
+		
+		//Sequence isn't being set for some reason.
+		//System.out.println("Damage");
+		//damageSound.setLooping(false);
+		
+		//if(damageSound.isLoaded())
+			//damageSound.play();
+		
+		 
 	}
 
     /***************************************************
