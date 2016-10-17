@@ -38,6 +38,7 @@ import axohEngine2.menus.NewGame;
 import axohEngine2.menus.TitleMenu;
 import axohEngine2.project.STATE;
 import axohEngine2.util.OSValidator;
+import axohEngine2.sound.*;
 
 public class Main implements KeyListener{
 	
@@ -51,6 +52,7 @@ public class Main implements KeyListener{
 	TitleMenu title;
 	ControlMenu controls;
 	
+	
 	Dimension screenSize;
 	public int winWidth;
 	public int winHeight;
@@ -58,13 +60,19 @@ public class Main implements KeyListener{
 	public boolean undec = false;
 	public Font titleFont;
 	int location = 0;
-
+	
+	MidiSequence songManager;
+	
 	Main main = this;
 	Data data;
 	Save save;
 
 	//Constructor of the Main class
 	public Main(){
+		// Not sure if this will give back the resources when you press the x button in the top right. 
+		 songManager = new MidiSequence("res\\music\\EspanjaTango.mid");
+	     songManager.setLooping(true);
+	     // songManager closes on exit if esc is used.
 		 
 		//Create CardLayout and cards JPanel to add all
 		//of the game panels to
@@ -74,6 +82,7 @@ public class Main implements KeyListener{
 		//Set dimensions of JFrame based on screen being played on
         setDimensions(); 
         
+
         //Create a new Data serializable class to save/load game data
         data = new Data();
         save = new Save(data);
@@ -97,12 +106,12 @@ public class Main implements KeyListener{
         cards.add(controls, "Controls");
         
         layout.show(cards, "Title");
+       
 	}
 	
 	public void loadFonts() {
         try {
             //create the font to use. Specify the size!
-
             Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File("res\\fonts\\title.ttf")).deriveFont((float)main.winWidth/30f);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             //register the font
@@ -119,8 +128,7 @@ public class Main implements KeyListener{
 	
 	//Initializes the main frame and adds the cards panel to it	
 		public void initFrame(){
-			
-			
+			 
 	        frame.add(cards);	//add the Judgement panel to the JFrame
 			frame.setExtendedState(winHeight);	
 	        frame.setUndecorated(false);			//Remove screen exit/minimize decorations
@@ -134,7 +142,7 @@ public class Main implements KeyListener{
 	        frame.setVisible(true);									//make the frame visible 
 	        frame.pack();
 	        frame.addKeyListener(this);
-	        frame.setMinimumSize(new Dimension(1000, 600));
+	        frame.setMinimumSize(new Dimension(1000, 600));// could cause errors on small screens
 	        loadFonts();
 	        
 	        frame.getContentPane().addHierarchyBoundsListener(new HierarchyBoundsListener(){
@@ -157,6 +165,7 @@ public class Main implements KeyListener{
 					controls.repaint();
 				}           
 	        });
+	       
 		}
 		
 
@@ -194,12 +203,14 @@ public class Main implements KeyListener{
 		
 		//The main method that executes the program
 		public static void main(String [] args){
+		
 			new Main();
-		}
+		}	 
 		
 		//Load from the data.ser file
 		//Receives the data class object that was serialized
 		public void loadState(File file){
+			
 			if(file.exists()){
 			try {
 				FileInputStream fis;
@@ -230,6 +241,7 @@ public class Main implements KeyListener{
 			}
 			}
 			else{
+				// Doesn't actually open the NewGame screen.
 				System.out.println("No save file found. Opening NewGame screen.");
 			}
 		}
@@ -263,6 +275,8 @@ public class Main implements KeyListener{
 				if(location == 4){
 					save.saveState(new File("data/" + data.getName() + ".ser"));
 				}
+				
+				songManager.stop();
 				System.exit(1);
 			}
 			

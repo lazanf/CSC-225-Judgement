@@ -39,7 +39,7 @@ public class AnimatedSprite extends Sprite {
     public int downAnim;
     public int walkFrames;
     public int walkDelay;
-    //For unsheathing TODO:(Needs to be moved to the Attack class)
+    //For unsheathing 
     public int unshLeft;
     public int unshRight;
     public int unshUp;

@@ -202,6 +202,14 @@ public class Judgement extends Game implements ActionListener {
     void gameStartUp() {
     	
         initVariables();
+        
+        //This handles the main song looping.
+        // just loops the same song over and over again at a loud volume.
+        // could make a class which gives control over music volume.
+        //MidiSequence songManager = new MidiSequence("res\\music\\EspanjaTango.mid");
+        //songManager.setLooping(true);
+        
+        
         mapBase = new MapDatabase(this, graphics(), scale);
         
 		for(int i = 0; i < mapBase.maps.length; i++)
@@ -298,7 +306,6 @@ public class Judgement extends Game implements ActionListener {
         //****Initialize and setup Mobs*********************************************************************
         playerMob = new Mob(this, graphics(), mainCharacter, 40, TYPE.PLAYER, "mainC", true);
         //playerMob.setBounds(15, 30, 60);
-        
         OSValidator currOS = new OSValidator();
         
         if(currOS.isWindows())
@@ -315,7 +322,7 @@ public class Judgement extends Game implements ActionListener {
     		playerMob.setTopBound(34, 46, 26, 10);
     		playerMob.setBottomBound(34, 80, 26, 10);
         }
-		//playerMob.setSwordBound(25, 40, 72, 48);
+		playerMob.setSwordBound(25, 40, 72, 48);
 		playerMob.setMoveAnim(32, 48, 40, 56, 3, 10);
         playerMob.addAttack("sword", 0, 5);
         Attack attack = playerMob.getAttack("sword");
@@ -324,14 +331,12 @@ public class Judgement extends Game implements ActionListener {
         attack.addInOutAnim();
         playerMob.setCurrentAttack("sword"); //Starting attack
         
-        //TODO: Don't forget this
+        
         playerMob.setHealth(35); //If you change the starting max health, dont forget to change it in inGameMenu.java max health also
         sprites().add(playerMob);
         uiToggle = true;
         
-        songManager = new MidiSequence("EspanjaTango");
-        songManager.setLooping(true);
-        songManager.play();
+        
         
     }
 
@@ -396,15 +401,22 @@ public class Judgement extends Game implements ActionListener {
 		return ratio;
     }
     
+    //TODO: This needs to be fixed.
+    // It doesn't give a hit box to the sword
+    // it checks to see if the npc and the mob intersect.
     public boolean swordCollision () {
 		for(int i=0; i < currentOverlay.currentMobs.length; i++) {
 			if(currentOverlay.currentMobs[i]!=null) {
 				Mob npc = currentOverlay.currentMobs[i];
-				if(playerMob.getLeftBound().intersects(npc.getBounds())
+				//This is good code for an enemy which chases a character.
+				 
+				  if(playerMob.getLeftBound().intersects(npc.getBounds())
 				|| playerMob.getRightBound().intersects(npc.getBounds())
 				|| playerMob.getTopBound().intersects(npc.getBounds())
 				|| playerMob.getBottomBound().intersects(npc.getBounds()))
 				return true;
+				
+				
 			}
 
 		}
@@ -414,12 +426,14 @@ public class Judgement extends Game implements ActionListener {
    
 
     private void refreshGameScreen(int maxHealth) {
+    	
+
         if (state == STATE.GAME) {
 
             //Render the map, the player, any NPCs or Monsters and the player health or status
             CENTERX = SCREENWIDTH/2;
             CENTERY = SCREENHEIGHT/2;
-            System.out.println(swordCollision());
+            //System.out.println(swordCollision());
             
             currentMap.render(this, g2d, getMapX(), getMapY());
             currentOverlay.render(this, g2d, getMapX(), getMapY());
@@ -537,7 +551,11 @@ public class Judgement extends Game implements ActionListener {
 					npcY = (int)currentOverlay.currentMobs[i].getYLoc();
 					setNpcMaxHealth(currentOverlay.currentMobs[i].maxHealth());
 					npcHealth = currentOverlay.currentMobs[i].health();
-				
+					
+					// This is what causes each Mob to move
+					// TODO: Check to see if there's a better place to call this method.
+					currentOverlay.currentMobs[i].updateMob();
+					//updateSprites();
 					Font health = new Font("Arial", Font.BOLD, 22);
 					g2d.setFont(health);
 					g2d.setColor(Color.BLACK);
@@ -550,11 +568,15 @@ public class Judgement extends Game implements ActionListener {
 					g2d.fillRect(npcX+26, npcY-17, (int)(80*0.9), 12);
 					g2d.setColor(Color.GREEN);
 					g2d.fillRect(npcX+26, npcY-17, (int)(npc.fixHealthBar(npcHealth)*0.9), 12);
+					// This code shows the hurt box of the NPC
 					//g2d.drawRect(npc.getBounds().x, npc.getBounds().y, npc.getBounds().width, npc.getBounds().height);
 					if(drawingDamage == true) {
 						g2d.setComposite(c);
 						g2d.setFont(damage);
-						if(keyAttack == true && damageTimer < 2) {
+						//TODO: This is the area of the code which is important for damaging mobs.
+						// Sword collision needs to be fixed.
+						// Currently it only checks to see if the players rectangle and the mobs rectangle intersect.
+						if(keyAttack == true && damageTimer < 2 && swordCollision() ) {
 							currentOverlay.currentMobs[i].takeDamage(lastDamage);
 						}
 						if(lastDamage < 10) {
@@ -563,10 +585,15 @@ public class Judgement extends Game implements ActionListener {
 						g2d.setColor(Color.WHITE);
 						g2d.drawString(""+lastDamage, (int)npc.getXLoc()+52, (int)npc.getYLoc()+50-damageTimer);
 						} else if(lastDamage >= 10 && lastDamage < 100) {
-							g2d.setColor(Color.BLACK);
-							g2d.drawString(""+lastDamage, (int)npc.getXLoc()+44, (int)npc.getYLoc()+52-damageTimer);
-							g2d.setColor(Color.WHITE);
-							g2d.drawString(""+lastDamage, (int)npc.getXLoc()+42, (int)npc.getYLoc()+50-damageTimer);
+							/* This code caused the game to write the damage no matter what.
+							 * didn't matter if the player was even close to the mob.
+							 * The game still will write sometimes without causing damage to the mob.
+							 * 
+							 * */
+							//g2d.setColor(Color.BLACK);
+							//g2d.drawString(""+lastDamage, (int)npc.getXLoc()+44, (int)npc.getYLoc()+52-damageTimer);
+							//g2d.setColor(Color.WHITE);
+							//g2d.drawString(""+lastDamage, (int)npc.getXLoc()+42, (int)npc.getYLoc()+50-damageTimer);
 						}
 						g2d.setComposite(d);
 					}
@@ -657,8 +684,7 @@ public class Judgement extends Game implements ActionListener {
             }*/
         }
     }
-    //there's no way this is the best way to do this.
-    //TODO:
+   
     
     private void checkSpriteSpriteOverlap(double leftOverlap, double rightOverlap, double topOverlap, double botOverlap,
                                           double smallestOverlap) {
@@ -1027,7 +1053,8 @@ public class Judgement extends Game implements ActionListener {
         }
         //Backspace(if a choice has not been made, this closes the inventory)
         if (keyBack && option == OPTION.NONE) {
-            state = STATE.GAME;
+            //state = STATE.GAME;
+        	setState(STATE.GAME);
             option = OPTION.NONE;
             inLocation = 0;
             sectionLoc = 0;

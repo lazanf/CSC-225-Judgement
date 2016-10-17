@@ -124,7 +124,9 @@ public class Sprite {
         _boundLegX = x;
         _boundLegY = y;
     }
-    
+    //TODO: I think this should be reworked.
+    // Probably will fuck up the entire game.
+    //
 	public void setLeftBound(int leftX, int leftY, int leftWidth, int leftHeight) {
 		this.leftWidth = leftWidth;
 		this.leftHeight = leftHeight;
